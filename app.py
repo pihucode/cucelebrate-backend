@@ -69,26 +69,27 @@ def delete_event(event_id):
         return json.dumps({'success': True, 'data': event.serialize()}), 200
     return json.dumps({'success': False, 'error': 'Event not found.'}), 404
 
-# Increment event interest
-@app.route('/api/event/<int:event_id>/', methods=['POST'])
-def increment_interest(event_id):
+# Update event interest
+# Needs a unique route - solved
+@app.route('/api/event/<int:event_id>/interest/<string:update>/', methods=['POST'])
+def increment_interest(event_id, update):
     event = Event.query.filter_by(id=event_id).first()
     if event is not None:
-        event.interest += 1
-        return json.dumps({'success': True, 'data': event.serialize()}), 200
-    return json.dumps({'success': False, 'error': 'Event not found.'}), 404
+        # checks route argument
+        if update == "increment":
+            event.interest += 1
 
-# Decrement event interest
-@app.route('/api/event/<int:event_id>/', methods=['POST'])
-def decrement_interest(event_id):
-    event = Event.query.filter_by(id=event_id).first()
-    if event is not None:
-        event.interest -= 1
+        elif update == "decrement":
+            # interest should not go below 0
+            if event.interest > 0:
+                event.interest -= 1
+
+        db.session.commit()
         return json.dumps({'success': True, 'data': event.serialize()}), 200
     return json.dumps({'success': False, 'error': 'Event not found.'}), 404
 
 # Get all events of a specific category
-@app.route('/api/events/<string:category_type>')
+@app.route('/api/events/<string:category_type>/')
 def get_events_of_category(category_type):
     events = Event.query.filter_by(category=category_type)
     res = {'success': True, 'data': [event.serialize() for event in events]}
