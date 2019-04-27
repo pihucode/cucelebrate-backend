@@ -3,7 +3,6 @@ from flask import Flask, request
 from db import db, Event
 
 app = Flask(__name__)
-
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 
@@ -22,8 +21,10 @@ def create_event():
     event = Event(
         title = post_body.get('title'),
         date_posted = post_body.get('date_posted'),
+        time = post_body.get('time'),
         descr = post_body.get('descr'),
         location = post_body.get('location'),
+        category = post_body.get('category'),
     )
     db.session.add(event)
     db.session.commit()
@@ -52,13 +53,14 @@ def edit_event(event_id):
         post_body = json.loads(request.data)
         event.title = post_body.get('title', event.title)
         event.descr = post_body.get('descr', event.descr)
+        event.time = post_body.get('time', event.time)
         event.location = post_body.get('location', event.location)
         db.session.commit()
         return json.dumps({'success': True, 'data': event.serialize()}), 200
     return json.dumps({'success': False, 'error': 'Event not found.'}), 404
 
-# # Delete a specific event
-@app.route('/api/post/<int:event_id>/', methods=['DELETE'])
+# Delete a specific event
+@app.route('/api/event/<int:event_id>/', methods=['DELETE'])
 def delete_event(event_id):
     event = Event.query.filter_by(id=event_id).first()
     if event is not None:
@@ -66,6 +68,31 @@ def delete_event(event_id):
         db.session.commit()
         return json.dumps({'success': True, 'data': event.serialize()}), 200
     return json.dumps({'success': False, 'error': 'Event not found.'}), 404
+
+# Increment event interest
+@app.route('/api/event/<int:event_id>/', methods=['POST'])
+def increment_interest(event_id):
+    event = Event.query.filter_by(id=event_id).first()
+    if event is not None:
+        event.interest += 1
+        return json.dumps({'success': True, 'data': event.serialize()}), 200
+    return json.dumps({'success': False, 'error': 'Event not found.'}), 404
+
+# Decrement event interest
+@app.route('/api/event/<int:event_id>/', methods=['POST'])
+def decrement_interest(event_id):
+    event = Event.query.filter_by(id=event_id).first()
+    if event is not None:
+        event.interest -= 1
+        return json.dumps({'success': True, 'data': event.serialize()}), 200
+    return json.dumps({'success': False, 'error': 'Event not found.'}), 404
+
+# Get all events of a specific category
+@app.route('/api/events/<string:category_type>')
+def get_events_of_category(category_type):
+    events = Event.query.filter_by(category=category_type)
+    res = {'success': True, 'data': [event.serialize() for event in events]}
+    return json.dumps(res), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
