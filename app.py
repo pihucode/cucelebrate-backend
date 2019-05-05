@@ -27,6 +27,7 @@ def create_event():
         descr = post_body.get('descr'),
         location = post_body.get('location'),
         category = post_body.get('category'),
+        image_url = post_body.get('image_url'),
     )
     db.session.add(event)
     db.session.commit()
