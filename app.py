@@ -20,7 +20,9 @@ def create_event():
     post_body = json.loads(request.data)
     event = Event(
         title = post_body.get('title'),
-        date_posted = post_body.get('date_posted'),
+        month = post_body.get('month'),
+        day = post_body.get('day'),
+        year = post_body.get('year'),
         time = post_body.get('time'),
         descr = post_body.get('descr'),
         location = post_body.get('location'),
@@ -53,6 +55,9 @@ def edit_event(event_id):
         post_body = json.loads(request.data)
         event.title = post_body.get('title', event.title)
         event.descr = post_body.get('descr', event.descr)
+        event.month = post_body.get('month', event.month)
+        event.day = post_body.get('day', event.day)
+        event.year = post_body.get('year', event.year)
         event.time = post_body.get('time', event.time)
         event.location = post_body.get('location', event.location)
         db.session.commit()
