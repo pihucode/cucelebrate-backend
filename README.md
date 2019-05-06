@@ -1,11 +1,11 @@
 # cucelebrate-backend
 Backend repository for HackChallenge Spring2019
 
-Name: Aryaa Pal
-NetID: avp34
+**Name:** Aryaa Pal
+**NetID:** avp34
 
-Name: Pinxuan Huang
-NetID: ph437
+**Name:** Pinxuan Huang
+**NetID:** ph437
 
 Endpoint: 34.74.36.56
 
